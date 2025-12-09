@@ -3,7 +3,7 @@
 
 Discord Bot that provides details about upcoming events and also capabilities to perform multiple real time CRUD operations.
 
-**Teckh Stack & Tools:**
+**Tech Stack & Tools:**
 - NodeJS
 - MongoDB
 - Disord Developer Portal
