@@ -148,16 +148,54 @@ client.on(Events.MessageCreate,async(message)=>{
       if (msgResponse.length === 0) {
         msgResponse = 'No events found.';
       } else {
-        // Format each event into a readable line
-        msgResponse = msgResponse.map(ev => {
-          try {
-            const name = ev.name || 'Unnamed event';
-            const date = ev.date ? new Date(ev.date).toLocaleDateString() : 'No date';
-            return `- ${name} — ${date}`;
-          } catch (e) {
-            return `- ${JSON.stringify(ev)}`;
-          }
-        }).join('\n');
+        // Tabulate the events
+        const headers = ['name','date'];
+        
+        const formattedEvents = msgResponse.map((item) => ({
+            name: item.name,
+            date: new Date(item.date).toISOString().split('T')[0].split('-').reverse().join('/')
+        }));
+        
+        msgResponse = formattedEvents;
+
+        // Determine max width for each column (simple approach)
+        const columnWidths = {};
+        headers.forEach(header => {
+          columnWidths[header] = header.length;
+        });
+
+        msgResponse.forEach(item => {
+          headers.forEach(header => {
+            const valueLength = String(item[header]).length;
+            if (valueLength > columnWidths[header]) {
+              columnWidths[header] = valueLength;
+            }
+          });
+        });
+
+        // Build the header row string
+        let res = "|";
+        headers.forEach(header => {
+          res += ` ${header.padEnd(columnWidths[header])} |`;
+        });
+        res += "\n";
+
+        // Build the separator row string (for markdown table style look)
+        res += "|";
+        headers.forEach(header => {
+          res += `-${''.padEnd(columnWidths[header], '-')}-|`;
+        });
+        res += "\n";
+        
+        // Build the data rows string
+        msgResponse.forEach(item => {
+          res += "|";
+          headers.forEach(header => {
+            res += ` ${String(item[header]).padEnd(columnWidths[header])} |`;
+          });
+          res += "\n";
+        });
+        msgResponse = `\`\`\`\n${res}\`\`\``;
       }
     } else if (msgResponse === undefined || msgResponse === null) {
       msgResponse = 'No response available.';

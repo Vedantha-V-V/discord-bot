@@ -10,8 +10,8 @@ Discord Bot that provides details about upcoming events and also capabilities to
 
 **Components & Layout:**
 - [x]  interaction commands like /help and /hello
-- [ ]  Tabular formatted message for better readability 
-- [ ]  Use clear typography
+- [x]  Tabular formatted message for better readability 
+- [x]  Use clear typography
 
 **Functionalities:**
 - [x]  Fetch all upcoming events
