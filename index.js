@@ -4,6 +4,7 @@ import connectDB from './db.js';
 import * as hello from './commands/hello.js';
 import * as time from './commands/help.js';
 import { GoogleGenAI, Type } from '@google/genai';
+import { addEvent, getEvents, getEventByDate, updateEvent, deleteEvent } from './crud.js';
 
 // Google client configuration
 const ai = new GoogleGenAI({});
@@ -103,6 +104,7 @@ client.on(Events.MessageCreate,async(message)=>{
         return;
     }
 
+    let msgResponse = "";
     const prompt = `You are an expert event manager and I need your help to convert the below message into an argument and map it to a specific function for me, 
     remove any typos and neatly format the required message. If the year is not specified in the message then assume it is the ${new Date().getFullYear()} and the message:${message.content}`
     const response = await ai.models.generateContent({
@@ -122,31 +124,48 @@ client.on(Events.MessageCreate,async(message)=>{
       console.log(`Arguments: ${JSON.stringify(functionCall.args)}`);
       if(functionCall.name=="getAllEvents"){
         // Get all events
-        console.log("Get all events")
-
+        msgResponse = await getEvents();
       }else if(functionCall.name=="getAnEvent"){
         // Get an event
-        console.log("Get an event")
-
+        const dateArg = functionCall.args && (functionCall.args.date || functionCall.args);
+        msgResponse = await getEventByDate(dateArg);
       }else if(functionCall.name=="addAnEvent"){
         // add an event
-        console.log("Add an event")
-
+        msgResponse = addEvent(functionCall.args);
       }else if(functionCall.name=="updateAnEvent"){
         // Update an event
-        console.log("Update an event")
-
+        msgResponse = await updateEvent(functionCall.args);
       }else{
         //Delete an event
-        console.log("Delete all events before today")
+        msgResponse = await deleteEvent(functionCall.args || {});
       }
     } else {
-      const message = `${response.text} for further help you can use the /help command for more info.`;
+      msgResponse = `${response.text} for further help you can use the /help command for more info.`;
     }
-    message.channel.send(message)
+
+    // Ensure we never send an empty or non-string message to Discord
+    if (Array.isArray(msgResponse)) {
+      if (msgResponse.length === 0) {
+        msgResponse = 'No events found.';
+      } else {
+        // Format each event into a readable line
+        msgResponse = msgResponse.map(ev => {
+          try {
+            const name = ev.name || 'Unnamed event';
+            const date = ev.date ? new Date(ev.date).toLocaleDateString() : 'No date';
+            return `- ${name} — ${date}`;
+          } catch (e) {
+            return `- ${JSON.stringify(ev)}`;
+          }
+        }).join('\n');
+      }
+    } else if (msgResponse === undefined || msgResponse === null) {
+      msgResponse = 'No response available.';
+    } else if (typeof msgResponse !== 'string') {
+      msgResponse = String(msgResponse);
+    }
+
+    await message.channel.send(msgResponse)
 })
-
-
-
 
 client.on(Events.InteractionCreate,handleInteraction)
