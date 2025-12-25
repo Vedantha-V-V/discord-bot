@@ -14,7 +14,7 @@ Discord Bot that provides details about upcoming events and also capabilities to
 - [ ]  Use clear typography
 
 **Functionalities:**
-- [ ]  Fetch all upcoming events
-- [ ]  Add a new event
-- [ ]  Update an existing event
-- [ ]  Delete previously occured events
+- [x]  Fetch all upcoming events
+- [x]  Add a new event
+- [x]  Update an existing event
+- [x]  Delete previously occured events
