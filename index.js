@@ -12,9 +12,6 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
 });
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
 // Log to verify env vars are loaded
 console.log('Environment check:');
 console.log('TOKEN exists:', !!process.env.TOKEN);
@@ -122,9 +119,6 @@ async function handleInteraction(interaction){
 }
 
 client.once(Events.ClientReady, readyDiscord)
-
-client.login(process.env.TOKEN).then(() => console.log('Login successful!'))
-  .catch(err => console.error('Login failed:', err.message));
 
 client.on(Events.MessageCreate,async(message)=>{
     if(message.author.bot){
@@ -238,6 +232,12 @@ client.on(Events.MessageCreate,async(message)=>{
 })
 
 client.on(Events.InteractionCreate,handleInteraction)
+
+client.login(process.env.TOKEN).then(() => console.log('Login successful!'))
+  .catch(err => console.error('Login failed:', err.message));
+
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.get('/', (req, res) => {
   res.send('Event Manager Bot is online.');
