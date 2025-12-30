@@ -12,12 +12,6 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
 });
 
-// Log to verify env vars are loaded
-console.log('Environment check:');
-console.log('TOKEN exists:', !!process.env.TOKEN);
-console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
-console.log('GEMINI_API_KEY exists:', !!process.env.GEMINI_API_KEY);
-
 // config()
 connectDB()
 
@@ -232,12 +226,6 @@ client.on(Events.MessageCreate,async(message)=>{
 })
 
 client.on(Events.InteractionCreate,handleInteraction)
-
-// console.log('About to call client.login()...');
-// console.log('TOKEN first 10 chars:', process.env.TOKEN ? process.env.TOKEN.substring(0, 10) + '...' : 'MISSING');
-
-// client.login(process.env.TOKEN).then(() => console.log('Login successful!'))
-//   .catch(err => console.error('Login failed:', err.message));
 
 keepAlive()
 client.login(process.env.TOKEN);
