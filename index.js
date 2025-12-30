@@ -256,25 +256,59 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.listen(PORT, async() => {
-  const server = app.listen(PORT, () => {
+// app.listen(PORT,() => {
+//   const server = app.listen(PORT, () => {
+//   console.log(`🌐 Server is running on port ${PORT}`);
+  
+//   // Login to Discord AFTER server starts
+//   console.log('🔄 About to call client.login()...');
+//   console.log('TOKEN first 10 chars:', process.env.TOKEN ? process.env.TOKEN.substring(0, 10) + '...' : 'MISSING');
+  
+//   client.login(process.env.TOKEN)
+//     .then(() => {
+//       console.log('✅ Discord login promise resolved successfully!');
+//     })
+//     .catch(err => {
+//       console.error('❌ Discord login promise rejected!');
+//       console.error('Error name:', err.name);
+//       console.error('Error message:', err.message);
+//       console.error('Error code:', err.code);
+//     });
+  
+//   console.log('⏭️  After client.login() call');
+// });
+// });
+
+const server = app.listen(PORT, () => {
   console.log(`🌐 Server is running on port ${PORT}`);
   
-  // Login to Discord AFTER server starts
-  console.log('🔄 About to call client.login()...');
-  console.log('TOKEN first 10 chars:', process.env.TOKEN ? process.env.TOKEN.substring(0, 10) + '...' : 'MISSING');
-  
-  await client.login(process.env.TOKEN)
-    .then(() => {
-      console.log('✅ Discord login promise resolved successfully!');
-    })
-    .catch(err => {
-      console.error('❌ Discord login promise rejected!');
-      console.error('Error name:', err.name);
-      console.error('Error message:', err.message);
-      console.error('Error code:', err.code);
-    });
-  
-  console.log('⏭️  After client.login() call');
-});
+  // Add a small delay to ensure everything is ready
+  setTimeout(async () => {
+    console.log('🔄 Starting Discord login process...');
+    console.log('TOKEN exists:', !!process.env.TOKEN);
+    console.log('TOKEN length:', process.env.TOKEN?.length);
+    console.log('TOKEN preview:', process.env.TOKEN?.substring(0, 20) + '...');
+    
+    try {
+      console.log('Calling client.login()...');
+      await client.login(process.env.TOKEN);
+      console.log('✅✅✅ LOGIN SUCCESSFUL! ✅✅✅');
+    } catch (error) {
+      console.error('❌❌❌ LOGIN FAILED! ❌❌❌');
+      console.error('Error type:', typeof error);
+      console.error('Error name:', error?.name);
+      console.error('Error message:', error?.message);
+      console.error('Error code:', error?.code);
+      console.error('Error stack:', error?.stack);
+      console.error('Full error object:', JSON.stringify(error, null, 2));
+      
+      // Try to give more specific guidance
+      if (error?.message?.includes('token')) {
+        console.error('⚠️  TOKEN ISSUE: The token appears to be invalid');
+      }
+      if (error?.code === 'ENOTFOUND' || error?.code === 'ETIMEDOUT') {
+        console.error('⚠️  NETWORK ISSUE: Cannot connect to Discord servers');
+      }
+    }
+  }, 1000); // Wait 1 second before trying to login
 });
