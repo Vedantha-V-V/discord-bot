@@ -104,6 +104,8 @@ const client = new Client({
     intents:[GatewayIntentBits.Guilds,GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent],
 })
 
+console.log('Discord client created successfully');
+
 function readyDiscord(){
     console.log(`Bot ${client.user.tag} is running`)
 }
@@ -232,6 +234,9 @@ client.on(Events.MessageCreate,async(message)=>{
 })
 
 client.on(Events.InteractionCreate,handleInteraction)
+
+console.log('About to call client.login()...');
+console.log('TOKEN first 10 chars:', process.env.TOKEN ? process.env.TOKEN.substring(0, 10) + '...' : 'MISSING');
 
 client.login(process.env.TOKEN).then(() => console.log('Login successful!'))
   .catch(err => console.error('Login failed:', err.message));
