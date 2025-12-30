@@ -1,3 +1,4 @@
+import express from 'express';
 import { Client, Events, GatewayIntentBits } from 'discord.js';
 import { config } from 'dotenv';
 import connectDB from './db.js';
@@ -10,6 +11,9 @@ import { addEvent, getEvents, getEventByDate, updateEvent, deleteEvent } from '.
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
 });
+
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 config()
 connectDB()
@@ -227,3 +231,11 @@ client.on(Events.MessageCreate,async(message)=>{
 })
 
 client.on(Events.InteractionCreate,handleInteraction)
+
+app.get('/', (req, res) => {
+  res.send('Event Manager Bot is online.');
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
