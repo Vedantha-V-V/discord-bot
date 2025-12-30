@@ -8,6 +8,6 @@ export const data = new SlashCommandBuilder()
 
 // Execute function export
 export async function execute(interaction) {
-  const message='Hi this is your Events Manager Bot and for any update type in natural language and get the desired output.\nAvailable functions:\nGet all Events\nGet an Event\nUpdate an Event\nAdd an Event\nDelete Events.'
+  const message='Hi this is your Events Manager Bot and for any update, type in natural language and get the desired output.\nAvailable functions:\n- Get all Events\n- Get an Event by date\n- Update an Event\n- Add an Event\n- Delete Events'
   await interaction.reply(message);
 }
