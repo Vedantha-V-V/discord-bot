@@ -1,6 +1,6 @@
 import express from 'express';
 import { Client, Events, GatewayIntentBits } from 'discord.js';
-import { config } from 'dotenv';
+// import { config } from 'dotenv';
 import connectDB from './db.js';
 import * as hello from './commands/hello.js';
 import * as time from './commands/help.js';
@@ -15,7 +15,7 @@ const ai = new GoogleGenAI({
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-config()
+// config()
 connectDB()
 
 // Function Declaration
