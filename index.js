@@ -15,6 +15,12 @@ const ai = new GoogleGenAI({
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Log to verify env vars are loaded
+console.log('Environment check:');
+console.log('TOKEN exists:', !!process.env.TOKEN);
+console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
+console.log('GEMINI_API_KEY exists:', !!process.env.GEMINI_API_KEY);
+
 // config()
 connectDB()
 
@@ -117,7 +123,8 @@ async function handleInteraction(interaction){
 
 client.once(Events.ClientReady, readyDiscord)
 
-client.login(process.env.TOKEN)
+client.login(process.env.TOKEN).then(() => console.log('Login successful!'))
+  .catch(err => console.error('Login failed:', err.message));
 
 client.on(Events.MessageCreate,async(message)=>{
     if(message.author.bot){
