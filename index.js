@@ -7,7 +7,9 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { addEvent, getEvents, getEventByDate, updateEvent, deleteEvent } from './crud.js';
 
 // Google client configuration
-const ai = new GoogleGenAI({});
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY
+});
 
 config()
 connectDB()
@@ -53,7 +55,7 @@ const addAnEventDeclaration = {
 };
 
 const updateAnEventDeclaration = {
-  name: 'updateAnEvents',
+  name: 'updateAnEvent',
   description: 'Updates the name or date of the event',
   parameters: {
     type: Type.OBJECT,
@@ -73,7 +75,21 @@ const updateAnEventDeclaration = {
 
 const deleteEventsDeclaration = {
   name: 'deleteEvents',
-  description: 'Deletes all events before today',
+  description: 'Deletes all events before today using the beforeToday boolean or delete an event based on the event name if specified by the user.',
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      beforeToday: {
+        type: Type.BOOLEAN,
+        description: 'Boolean parameter if the user wants to delete events before today.',
+      },
+      name: {
+        type: Type.STRING,
+        description: 'The event name to be deleted if specified by the user.',
+      }
+    },
+    required: ['beforeToday'],
+  },
 };
 
 
@@ -120,8 +136,6 @@ client.on(Events.MessageCreate,async(message)=>{
     // Check for function calls in the response
     if (response.functionCalls && response.functionCalls.length > 0) {
       const functionCall = response.functionCalls[0];
-      console.log(`Function to call: ${functionCall.name}`);
-      console.log(`Arguments: ${JSON.stringify(functionCall.args)}`);
       if(functionCall.name=="getAllEvents"){
         // Get all events
         msgResponse = await getEvents();
@@ -130,8 +144,8 @@ client.on(Events.MessageCreate,async(message)=>{
         const dateArg = functionCall.args && (functionCall.args.date || functionCall.args);
         msgResponse = await getEventByDate(dateArg);
       }else if(functionCall.name=="addAnEvent"){
-        // add an event
-        msgResponse = addEvent(functionCall.args);
+        // Add an event
+        msgResponse = await addEvent(functionCall.args);
       }else if(functionCall.name=="updateAnEvent"){
         // Update an event
         msgResponse = await updateEvent(functionCall.args);
@@ -200,7 +214,13 @@ client.on(Events.MessageCreate,async(message)=>{
     } else if (msgResponse === undefined || msgResponse === null) {
       msgResponse = 'No response available.';
     } else if (typeof msgResponse !== 'string') {
-      msgResponse = String(msgResponse);
+      if(response.functionCalls[0].name == 'addAnEvent'){
+        msgResponse = `Event ${msgResponse.name} added successfully.`;
+      }else if(response.functionCalls[0].name == 'updateAnEvent'){
+        msgResponse = `Event ${msgResponse.name} updated successfully.`;
+      }else{
+        msgResponse = 'Events deleted successfully.';
+      }
     }
 
     await message.channel.send(msgResponse)

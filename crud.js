@@ -4,16 +4,16 @@ import mongoose from 'mongoose';
 function convertDate(dateString) {
     const parts = dateString.split('/');
     const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1;
+    const month = parseInt(parts[1], 10)-1;
     const year = parseInt(parts[2], 10);
-    const dateObject = new Date(year, month, day);
+    const dateObject = new Date(Date.UTC(year, month, day));
     return dateObject;
 }
 
 function dayRange(dateObj) {
-    const start = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+    const start = new Date(Date.UTC(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate()));
     const end = new Date(start);
-    end.setDate(end.getDate() + 1);
+    end.setUTCDate(end.getUTCDate() + 1);
     return { start, end };
 }
 
@@ -58,14 +58,12 @@ export async function getEventByDate(dateString) {
 
 export async function updateEvent(args) {
     try {
-        const date = convertDate(args.date);
-        const { start, end } = dayRange(date);
         const update = {};
         if (args.name) update.name = args.name;
-        if (args.newDate) update.date = convertDate(args.newDate);
+        if (args.date) update.date = convertDate(args.date);
 
         const updated = await Event.findOneAndUpdate(
-            { date: { $gte: start, $lt: end } },
+            { name: args.name },
             { $set: update },
             { new: true }
         ).exec();
@@ -88,10 +86,8 @@ export async function deleteEvent(args) {
         }
 
         // If args.date provided -> delete events on that date
-        if (args && args.date) {
-            const date = convertDate(args.date);
-            const { start, end } = dayRange(date);
-            const res = await Event.deleteMany({ date: { $gte: start, $lt: end } }).exec();
+        if (args && args.name) {
+            const res = await Event.deleteMany({ name: args.name }).exec();
             return { deletedCount: res.deletedCount || 0 };
         }
 
