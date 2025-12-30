@@ -256,7 +256,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async() => {
   const server = app.listen(PORT, () => {
   console.log(`🌐 Server is running on port ${PORT}`);
   
@@ -264,7 +264,7 @@ app.listen(PORT, () => {
   console.log('🔄 About to call client.login()...');
   console.log('TOKEN first 10 chars:', process.env.TOKEN ? process.env.TOKEN.substring(0, 10) + '...' : 'MISSING');
   
-  client.login(process.env.TOKEN)
+  await client.login(process.env.TOKEN)
     .then(() => {
       console.log('✅ Discord login promise resolved successfully!');
     })
