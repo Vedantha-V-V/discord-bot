@@ -235,11 +235,11 @@ client.on(Events.MessageCreate,async(message)=>{
 
 client.on(Events.InteractionCreate,handleInteraction)
 
-console.log('About to call client.login()...');
-console.log('TOKEN first 10 chars:', process.env.TOKEN ? process.env.TOKEN.substring(0, 10) + '...' : 'MISSING');
+// console.log('About to call client.login()...');
+// console.log('TOKEN first 10 chars:', process.env.TOKEN ? process.env.TOKEN.substring(0, 10) + '...' : 'MISSING');
 
-client.login(process.env.TOKEN).then(() => console.log('Login successful!'))
-  .catch(err => console.error('Login failed:', err.message));
+// client.login(process.env.TOKEN).then(() => console.log('Login successful!'))
+//   .catch(err => console.error('Login failed:', err.message));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -248,6 +248,33 @@ app.get('/', (req, res) => {
   res.send('Event Manager Bot is online.');
 });
 
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    bot: client.user ? client.user.tag : 'Not connected',
+    uptime: process.uptime()
+  });
+});
+
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  const server = app.listen(PORT, () => {
+  console.log(`🌐 Server is running on port ${PORT}`);
+  
+  // Login to Discord AFTER server starts
+  console.log('🔄 About to call client.login()...');
+  console.log('TOKEN first 10 chars:', process.env.TOKEN ? process.env.TOKEN.substring(0, 10) + '...' : 'MISSING');
+  
+  client.login(process.env.TOKEN)
+    .then(() => {
+      console.log('✅ Discord login promise resolved successfully!');
+    })
+    .catch(err => {
+      console.error('❌ Discord login promise rejected!');
+      console.error('Error name:', err.name);
+      console.error('Error message:', err.message);
+      console.error('Error code:', err.code);
+    });
+  
+  console.log('⏭️  After client.login() call');
+});
 });
