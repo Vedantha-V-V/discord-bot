@@ -1,4 +1,3 @@
-import express from 'express';
 import { Client, Events, GatewayIntentBits } from 'discord.js';
 // import { config } from 'dotenv';
 import connectDB from './db.js';
@@ -6,6 +5,7 @@ import * as hello from './commands/hello.js';
 import * as time from './commands/help.js';
 import { GoogleGenAI, Type } from '@google/genai';
 import { addEvent, getEvents, getEventByDate, updateEvent, deleteEvent } from './crud.js';
+import keepAlive from './server.js';
 
 // Google client configuration
 const ai = new GoogleGenAI({
@@ -103,8 +103,6 @@ const deleteEventsDeclaration = {
 const client = new Client({
     intents:[GatewayIntentBits.Guilds,GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent],
 })
-
-console.log('Discord client created successfully');
 
 function readyDiscord(){
     console.log(`Bot ${client.user.tag} is running`)
@@ -241,74 +239,5 @@ client.on(Events.InteractionCreate,handleInteraction)
 // client.login(process.env.TOKEN).then(() => console.log('Login successful!'))
 //   .catch(err => console.error('Login failed:', err.message));
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-  res.send('Event Manager Bot is online.');
-});
-
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    bot: client.user ? client.user.tag : 'Not connected',
-    uptime: process.uptime()
-  });
-});
-
-// app.listen(PORT,() => {
-//   const server = app.listen(PORT, () => {
-//   console.log(`🌐 Server is running on port ${PORT}`);
-  
-//   // Login to Discord AFTER server starts
-//   console.log('🔄 About to call client.login()...');
-//   console.log('TOKEN first 10 chars:', process.env.TOKEN ? process.env.TOKEN.substring(0, 10) + '...' : 'MISSING');
-  
-//   client.login(process.env.TOKEN)
-//     .then(() => {
-//       console.log('✅ Discord login promise resolved successfully!');
-//     })
-//     .catch(err => {
-//       console.error('❌ Discord login promise rejected!');
-//       console.error('Error name:', err.name);
-//       console.error('Error message:', err.message);
-//       console.error('Error code:', err.code);
-//     });
-  
-//   console.log('⏭️  After client.login() call');
-// });
-// });
-
-const server = app.listen(PORT, () => {
-  console.log(`🌐 Server is running on port ${PORT}`);
-  
-  // Add a small delay to ensure everything is ready
-  setTimeout(async () => {
-    console.log('🔄 Starting Discord login process...');
-    console.log('TOKEN exists:', !!process.env.TOKEN);
-    console.log('TOKEN length:', process.env.TOKEN?.length);
-    console.log('TOKEN preview:', process.env.TOKEN?.substring(0, 20) + '...');
-    
-    try {
-      console.log('Calling client.login()...');
-      await client.login(process.env.TOKEN);
-      console.log('✅✅✅ LOGIN SUCCESSFUL! ✅✅✅');
-    } catch (error) {
-      console.error('❌❌❌ LOGIN FAILED! ❌❌❌');
-      console.error('Error type:', typeof error);
-      console.error('Error name:', error?.name);
-      console.error('Error message:', error?.message);
-      console.error('Error code:', error?.code);
-      console.error('Error stack:', error?.stack);
-      console.error('Full error object:', JSON.stringify(error, null, 2));
-      
-      // Try to give more specific guidance
-      if (error?.message?.includes('token')) {
-        console.error('⚠️  TOKEN ISSUE: The token appears to be invalid');
-      }
-      if (error?.code === 'ENOTFOUND' || error?.code === 'ETIMEDOUT') {
-        console.error('⚠️  NETWORK ISSUE: Cannot connect to Discord servers');
-      }
-    }
-  }, 1000); // Wait 1 second before trying to login
-});
+keepAlive()
+client.login(process.env.TOKEN);
