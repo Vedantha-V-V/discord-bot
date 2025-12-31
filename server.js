@@ -9,8 +9,8 @@ app.all('/', (req, res) => {
 
 function keepAlive(){
     app.listen(PORT,()=>{
-        console.log("Server is ready.")
-    })
+        console.log(`Server is ready on port ${PORT}.`);
+    });
 }
 
-export default keepAlive
+export default keepAlive;
