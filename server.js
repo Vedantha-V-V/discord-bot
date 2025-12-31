@@ -8,7 +8,7 @@ app.all('/', (req, res) => {
 });
 
 function keepAlive(){
-    app.listen(10000,()=>{
+    app.listen(PORT,()=>{
         console.log("Server is ready.")
     })
 }
